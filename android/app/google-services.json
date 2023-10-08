@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "1052501904643",
+    "project_id": "wscubetech-402d0",
+    "storage_bucket": "wscubetech-402d0.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1052501904643:android:fef83cfa13d86533c32d36",
+        "android_client_info": {
+          "package_name": "com.example.ecommerce_dribbble"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuhi-eKdYPPT9qHM-HopTiJrL7ocJyphk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1052501904643:android:786e373d72b1c8ecc32d36",
+        "android_client_info": {
+          "package_name": "com.example.wscubetech"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBuhi-eKdYPPT9qHM-HopTiJrL7ocJyphk"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
