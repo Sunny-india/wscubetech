@@ -1,3 +1,4 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
@@ -19,10 +20,50 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   TextEditingController cityController = TextEditingController();
+  GlobalKey<FormState> formkey = GlobalKey<FormState>();
   bool isObscured = true;
 
-  void signUserIn() {
-    print('sign in just');
+  void signUserIn() async {
+    if (formkey.currentState!.validate()) {
+      /// show loading circle
+      /// and at the end of this function have that popped
+      // showDialog(
+      //     context: context,
+      //     builder: (context) {
+      //       return const Center(
+      //         child: CircularProgressIndicator(
+      //           color: Colors.deepPurple,
+      //         ),
+      //       );
+      //     });
+
+      ///===sending user data to firebase and having
+      /// it checked if it exists or not.
+      /// When successful, it also allows users to call
+      /// their authStateChanges, itTokenChanges, or userChanges
+      /// based on authStateChanges, we can always send our user
+      /// to different pages from SplashScreen.===///
+
+      try {
+        UserCredential userCredential = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+                email: emailController.text, password: passwordController.text);
+        print('sign in just');
+        formkey.currentState!.reset();
+
+        /// at this point the authStateChanges method would listen
+        /// and for that we've set its behaviour already in SplashScreen
+      } on FirebaseAuthException catch (e) {
+        if (e.code == 'user-not-found') {
+          print('User Not Found');
+          //todo: ScaffoldMessenger or AlertDialog to be used here
+        }
+        if (e.code == 'wrong-password') {
+          print('Wrong Password');
+          //todo: ScaffoldMessenger or AlertDialog to be used here
+        }
+      }
+    }
   }
 
   ///===sign in with Google===///
@@ -45,142 +86,165 @@ class _LoginPageState extends State<LoginPage> {
         child: SingleChildScrollView(
           reverse: true,
           keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 18.0),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.stretch,
-              children: [
-                MyBox(mHeight: size.height * .11),
+          child: Form(
+            key: formkey,
+            child: Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 18.0),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.stretch,
+                children: [
+                  MyBox(mHeight: size.height * .11),
 
-                ///logo
-                const Icon(
-                  CupertinoIcons.lock,
-                  color: Colors.black,
-                  size: 100,
-                ),
-
-                /// Welcome back
-                Text(
-                  'Welcome!',
-                  textAlign: TextAlign.center,
-                  style: TextStyle(color: Colors.grey.shade700, fontSize: 20),
-                ),
-                const MyBox(mHeight: 20),
-
-                /// username textfield
-                TextFormField(
-                  controller: nameController,
-                  decoration: buildInputDecoration()
-                      .copyWith(hintText: 'Enter your name'),
-                ),
-                const MyBox(mHeight: 12),
-
-                ///phone textfield
-                TextFormField(
-                  controller: phoneController,
-                  decoration: buildInputDecoration()
-                      .copyWith(hintText: 'Enter your phone'),
-                  keyboardType: TextInputType.number,
-                ),
-                const MyBox(mHeight: 12),
-
-                /// firmName textfield
-                TextFormField(
-                  controller: firmNameController,
-                  decoration: buildInputDecoration()
-                      .copyWith(hintText: 'Enter your firm\'s name'),
-                ),
-                const MyBox(mHeight: 12),
-
-                /// city textfield
-                TextFormField(
-                  controller: cityController,
-                  decoration: buildInputDecoration()
-                      .copyWith(hintText: 'Enter your city'),
-                ),
-                const MyBox(mHeight: 12),
-
-                /// email textfield
-                TextFormField(
-                  controller: emailController,
-                  decoration: buildInputDecoration()
-                      .copyWith(hintText: 'Enter your email'),
-                ),
-                const MyBox(mHeight: 12),
-
-                /// password textfield
-                TextFormField(
-                  controller: passwordController,
-                  decoration: buildInputDecoration().copyWith(
-                      hintText: 'Enter your password',
-                      hintStyle: TextStyle(color: Colors.grey.shade500)),
-                  obscureText: isObscured,
-                ),
-                const MyBox(mHeight: 12),
-
-                /// forgot password
-                const Text(
-                  'forgot Password?',
-                  textAlign: TextAlign.right,
-                ),
-                const MyBox(mHeight: 12),
-
-                /// sign-in button
-                MyButton(
-                  onTapping: signUserIn,
-                  buttonWidth: size.width * .90,
-                  buttonHeight: 55,
-                  buttonWidget: const Text(
-                    'Sign In',
-                    style: TextStyle(color: Colors.white, fontSize: 29),
+                  ///logo
+                  const Icon(
+                    CupertinoIcons.lock,
+                    color: Colors.black,
+                    size: 100,
                   ),
-                ),
-                const MyBox(mHeight: 12),
 
-                /// or continue with
-                Row(
-                  children: [
-                    Expanded(
-                        child: Divider(
-                      thickness: 0.5,
-                      color: Colors.grey.shade400,
-                    )),
-                    const Text('Or Continue With'),
-                    Expanded(
-                        child: Divider(
-                      thickness: 0.5,
-                      color: Colors.grey.shade400,
-                    ))
-                  ],
-                ),
-                const MyBox(mHeight: 12),
+                  /// Welcome back
+                  Text(
+                    'Welcome!',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey.shade700, fontSize: 20),
+                  ),
+                  const MyBox(mHeight: 20),
 
-                /// google sign-in button
-                /// apple sign-in button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    SquareContainerForLogo(
-                      imagePath: 'assets/images/googleLogo.jpg',
-                      myHeight: 80,
-                      myWidth: 80,
-                      onTapping: signInWithGoogle,
+                  /// username textfield
+                  TextFormField(
+                    controller: nameController,
+                    decoration: buildInputDecoration()
+                        .copyWith(hintText: 'Enter your name'),
+                    validator: (value) {
+                      if (value!.isEmpty || value == '') {
+                        return 'Please Enter some name';
+                      } else if (value.isValidName() == false) {
+                        return 'Use letters only';
+                      }
+                      // else if (value.isValidName() == true) {
+                      //   return null;
+                      //}
+                      else {
+                        return null;
+                      }
+
+                      // if (value!.isNotEmpty) {
+                      //   return null;
+                      // } else {
+                      //   return 'Please Enter your name';
+                      // }
+                    },
+                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                  ),
+                  const MyBox(mHeight: 12),
+
+                  ///phone textfield
+                  TextFormField(
+                    controller: phoneController,
+                    decoration: buildInputDecoration()
+                        .copyWith(hintText: 'Enter your phone'),
+                    keyboardType: TextInputType.number,
+                  ),
+                  const MyBox(mHeight: 12),
+
+                  /// firmName textfield
+                  TextFormField(
+                    controller: firmNameController,
+                    decoration: buildInputDecoration()
+                        .copyWith(hintText: 'Enter your firm\'s name'),
+                  ),
+                  const MyBox(mHeight: 12),
+
+                  /// city textfield
+                  TextFormField(
+                    controller: cityController,
+                    decoration: buildInputDecoration()
+                        .copyWith(hintText: 'Enter your city'),
+                  ),
+                  const MyBox(mHeight: 12),
+
+                  /// email textfield
+                  TextFormField(
+                    controller: emailController,
+                    decoration: buildInputDecoration()
+                        .copyWith(hintText: 'Enter your email'),
+                  ),
+                  const MyBox(mHeight: 12),
+
+                  /// password textfield
+                  TextFormField(
+                    controller: passwordController,
+                    decoration: buildInputDecoration().copyWith(
+                        hintText: 'Enter your password',
+                        hintStyle: TextStyle(color: Colors.grey.shade500)),
+                    obscureText: isObscured,
+                  ),
+                  const MyBox(mHeight: 12),
+
+                  /// forgot password
+                  const Text(
+                    'forgot Password?',
+                    textAlign: TextAlign.right,
+                  ),
+                  const MyBox(mHeight: 12),
+
+                  /// sign-in button
+                  MyButton(
+                    onTapping: signUserIn,
+                    buttonWidth: size.width * .90,
+                    buttonHeight: 55,
+                    buttonWidget: const Text(
+                      'Sign In',
+                      style: TextStyle(color: Colors.white, fontSize: 29),
                     ),
-                    const MyBox(
-                      mWidth: 12,
-                    ),
-                    SquareContainerForLogo(
-                      imagePath: 'assets/images/appleLogo.png',
-                      myHeight: 80,
-                      myWidth: 80,
-                      onTapping: signInWithApple,
-                    )
-                  ],
-                ),
-                MyBox(mHeight: 12),
+                  ),
+                  const MyBox(mHeight: 12),
 
-                /// not a member? register now
-              ],
+                  /// or continue with
+                  Row(
+                    children: [
+                      Expanded(
+                          child: Divider(
+                        thickness: 0.5,
+                        color: Colors.grey.shade400,
+                      )),
+                      const Text('Or Continue With'),
+                      Expanded(
+                          child: Divider(
+                        thickness: 0.5,
+                        color: Colors.grey.shade400,
+                      ))
+                    ],
+                  ),
+                  const MyBox(mHeight: 12),
+
+                  /// google sign-in button
+                  /// apple sign-in button
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SquareContainerForLogo(
+                        imagePath: 'assets/images/googleLogo.jpg',
+                        myHeight: 80,
+                        myWidth: 80,
+                        onTapping: signInWithGoogle,
+                      ),
+                      const MyBox(
+                        mWidth: 12,
+                      ),
+                      SquareContainerForLogo(
+                        imagePath: 'assets/images/appleLogo.png',
+                        myHeight: 80,
+                        myWidth: 80,
+                        onTapping: signInWithApple,
+                      )
+                    ],
+                  ),
+                  MyBox(mHeight: 12),
+
+                  /// not a member? register now
+                ],
+              ),
             ),
           ),
         ),
@@ -203,5 +267,11 @@ class _LoginPageState extends State<LoginPage> {
       fillColor: Colors.grey.shade200,
       filled: true,
     );
+  }
+}
+
+extension ValidName on String {
+  bool isValidName() {
+    return RegExp(r'^[a-zA-Z]+$').hasMatch(this);
   }
 }
