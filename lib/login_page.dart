@@ -264,6 +264,10 @@ class _LoginPageState extends State<LoginPage> {
         ),
         borderSide: const BorderSide(color: Colors.lightBlueAccent),
       ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(12),
+        borderSide: const BorderSide(color: Colors.red),
+      ),
       fillColor: Colors.grey.shade200,
       filled: true,
     );
