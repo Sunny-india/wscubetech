@@ -316,15 +316,14 @@ class _LoginPageState extends State<LoginPage> {
         borderSide: BorderSide(color: Colors.grey.shade300),
       ),
       focusedBorder: OutlineInputBorder(
-        borderRadius: BorderRadius.circular(
-          12,
-        ),
+        borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: Colors.lightBlueAccent),
       ),
-      errorBorder: OutlineInputBorder(
+      focusedErrorBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: Colors.red),
       ),
+
       // fillColor: Colors.grey.shade300,
       //filled: true,
     );
@@ -334,5 +333,13 @@ class _LoginPageState extends State<LoginPage> {
 extension ValidName on String {
   bool isValidName() {
     return RegExp(r'^[a-zA-Z]+$').hasMatch(this);
+  }
+}
+
+extension ValidEmail on String {
+  bool isValidEmail() {
+    return RegExp(
+            r"^[a-zA-Z0-9]+[\_\-\.]*[a-zA-Z0-9]*[\@][a-zA-Z]{2,}[\.][a-zA-Z]{2,5}$")
+        .hasMatch(this);
   }
 }
