@@ -24,19 +24,21 @@ class MyButton extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                     color: Colors.grey.shade500,
-                    offset: const Offset(4, 4),
-                    blurRadius: 15,
+                    offset: const Offset(-2, -2),
+                    blurRadius: 3,
                     spreadRadius: 1),
-                const BoxShadow(
-                  color: Colors.white,
-                  offset: Offset(-4, -4),
-                  blurRadius: 15,
+                BoxShadow(
+                  color: Colors.grey.shade400,
+                  offset: Offset(4, 4),
+                  blurRadius: 3,
                   spreadRadius: 1,
                 ),
               ]),
           height: buttonHeight,
           width: buttonWidth,
-          child: FittedBox(child: buttonWidget),
+          child: FittedBox(
+            child: buttonWidget,
+          ),
         ));
   }
 }

@@ -339,7 +339,7 @@ extension ValidName on String {
 extension ValidEmail on String {
   bool isValidEmail() {
     return RegExp(
-            r"^[a-zA-Z0-9]+[\_\-\.]*[a-zA-Z0-9]*[\@][a-zA-Z]{2,}[\.][a-zA-Z]{2,5}$")
+            r"^[a-zA-Z0-9]+[_\-.]*[a-zA-Z0-9]*@[a-zA-Z]{2,}[.][a-zA-Z]{2,5}$")
         .hasMatch(this);
   }
 }
