@@ -19,7 +19,21 @@ class MyButton extends StatelessWidget {
         child: Container(
           alignment: Alignment.center,
           decoration: BoxDecoration(
-              borderRadius: BorderRadius.circular(12), color: Colors.black),
+              borderRadius: BorderRadius.circular(12),
+              color: Colors.grey.shade300,
+              boxShadow: [
+                BoxShadow(
+                    color: Colors.grey.shade500,
+                    offset: const Offset(4, 4),
+                    blurRadius: 15,
+                    spreadRadius: 1),
+                const BoxShadow(
+                  color: Colors.white,
+                  offset: Offset(-4, -4),
+                  blurRadius: 15,
+                  spreadRadius: 1,
+                ),
+              ]),
           height: buttonHeight,
           width: buttonWidth,
           child: FittedBox(child: buttonWidget),

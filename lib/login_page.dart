@@ -111,73 +111,97 @@ class _LoginPageState extends State<LoginPage> {
                   const MyBox(mHeight: 20),
 
                   /// username textfield
-                  TextFormField(
-                    controller: nameController,
-                    decoration: buildInputDecoration()
-                        .copyWith(hintText: 'Enter your name'),
-                    validator: (value) {
-                      if (value!.isEmpty || value == '') {
-                        return 'Please Enter some name';
-                      } else if (value.isValidName() == false) {
-                        return 'Use letters only';
-                      }
-                      // else if (value.isValidName() == true) {
-                      //   return null;
-                      //}
-                      else {
-                        return null;
-                      }
 
-                      // if (value!.isNotEmpty) {
-                      //   return null;
-                      // } else {
-                      //   return 'Please Enter your name';
-                      // }
-                    },
-                    autovalidateMode: AutovalidateMode.onUserInteraction,
+                  buildContainerForTFF(
+                    myChild: TextFormField(
+                      controller: nameController,
+                      decoration: buildInputDecoration()
+                          .copyWith(hintText: 'Enter your name'),
+                      validator: (value) {
+                        if (value!.isEmpty || value == '') {
+                          return 'Please Enter some name';
+                        } else if (value.isValidName() == false) {
+                          return 'Use letters only';
+                        }
+                        // else if (value.isValidName() == true) {
+                        //   return null;
+                        //}
+                        else {
+                          return null;
+                        }
+
+                        // if (value!.isNotEmpty) {
+                        //   return null;
+                        // } else {
+                        //   return 'Please Enter your name';
+                        // }
+                      },
+                      autovalidateMode: AutovalidateMode.onUserInteraction,
+                    ),
                   ),
                   const MyBox(mHeight: 12),
 
                   ///phone textfield
-                  TextFormField(
-                    controller: phoneController,
-                    decoration: buildInputDecoration()
-                        .copyWith(hintText: 'Enter your phone'),
-                    keyboardType: TextInputType.number,
+                  buildContainerForTFF(
+                    myChild: TextFormField(
+                      controller: phoneController,
+                      decoration: buildInputDecoration()
+                          .copyWith(hintText: 'Enter your phone'),
+                      keyboardType: TextInputType.number,
+                    ),
                   ),
                   const MyBox(mHeight: 12),
 
                   /// firmName textfield
-                  TextFormField(
-                    controller: firmNameController,
-                    decoration: buildInputDecoration()
-                        .copyWith(hintText: 'Enter your firm\'s name'),
+                  buildContainerForTFF(
+                    myChild: TextFormField(
+                      controller: firmNameController,
+                      decoration: buildInputDecoration()
+                          .copyWith(hintText: 'Enter your firm\'s name'),
+                    ),
                   ),
                   const MyBox(mHeight: 12),
 
                   /// city textfield
-                  TextFormField(
-                    controller: cityController,
-                    decoration: buildInputDecoration()
-                        .copyWith(hintText: 'Enter your city'),
+                  buildContainerForTFF(
+                    myChild: TextFormField(
+                      controller: cityController,
+                      decoration: buildInputDecoration()
+                          .copyWith(hintText: 'Enter your city'),
+                    ),
                   ),
                   const MyBox(mHeight: 12),
 
                   /// email textfield
-                  TextFormField(
-                    controller: emailController,
-                    decoration: buildInputDecoration()
-                        .copyWith(hintText: 'Enter your email'),
+                  buildContainerForTFF(
+                    myChild: TextFormField(
+                      controller: emailController,
+                      decoration: buildInputDecoration()
+                          .copyWith(hintText: 'Enter your email'),
+                    ),
                   ),
                   const MyBox(mHeight: 12),
 
                   /// password textfield
-                  TextFormField(
-                    controller: passwordController,
-                    decoration: buildInputDecoration().copyWith(
-                        hintText: 'Enter your password',
-                        hintStyle: TextStyle(color: Colors.grey.shade500)),
-                    obscureText: isObscured,
+                  buildContainerForTFF(
+                    myChild: TextFormField(
+                      controller: passwordController,
+                      decoration: buildInputDecoration().copyWith(
+                          hintText: 'Enter your password',
+                          hintStyle: TextStyle(color: Colors.grey.shade500),
+                          suffixIcon: IconButton(
+                            onPressed: () {
+                              setState(() {
+                                isObscured = !isObscured;
+                              });
+                            },
+                            icon: const Icon(
+                              CupertinoIcons.eye,
+                              color: Colors.black,
+                            ),
+                          )),
+                      obscureText: isObscured,
+                    ),
                   ),
                   const MyBox(mHeight: 12),
 
@@ -195,7 +219,7 @@ class _LoginPageState extends State<LoginPage> {
                     buttonHeight: 55,
                     buttonWidget: const Text(
                       'Sign In',
-                      style: TextStyle(color: Colors.white, fontSize: 29),
+                      style: TextStyle(color: Colors.black, fontSize: 29),
                     ),
                   ),
                   const MyBox(mHeight: 12),
@@ -224,10 +248,11 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       SquareContainerForLogo(
-                        imagePath: 'assets/images/googleLogo.jpg',
+                        onTapping: signInWithGoogle,
                         myHeight: 80,
                         myWidth: 80,
-                        onTapping: signInWithGoogle,
+                        containerColor: Colors.grey.shade300,
+                        imagePath: 'assets/images/googleLogo.jpg',
                       ),
                       const MyBox(
                         mWidth: 12,
@@ -236,11 +261,12 @@ class _LoginPageState extends State<LoginPage> {
                         imagePath: 'assets/images/appleLogo.png',
                         myHeight: 80,
                         myWidth: 80,
+                        containerColor: Colors.grey.shade300,
                         onTapping: signInWithApple,
                       )
                     ],
                   ),
-                  MyBox(mHeight: 12),
+                  const MyBox(mHeight: 12),
 
                   /// not a member? register now
                 ],
@@ -252,11 +278,42 @@ class _LoginPageState extends State<LoginPage> {
     );
   }
 
+  Container buildContainerForTFF({required Widget myChild}) {
+    return Container(
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(12),
+        boxShadow: [
+          BoxShadow(
+              color: Colors.grey.shade500,
+              offset: const Offset(4, 4),
+              blurRadius: 2,
+              spreadRadius: 1),
+          const BoxShadow(
+              color: Colors.white,
+              offset: Offset(-4, -4),
+              blurRadius: 2,
+              spreadRadius: 1),
+        ],
+        gradient: LinearGradient(
+            colors: [
+              Colors.grey.shade200,
+              Colors.grey.shade300,
+              Colors.grey.shade400,
+              Colors.grey.shade600
+            ],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+            stops: const [0.3, 0.7, 0.8, 0.9]),
+      ),
+      child: myChild,
+    );
+  }
+
   InputDecoration buildInputDecoration() {
     return InputDecoration(
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
-        borderSide: const BorderSide(color: Colors.black),
+        borderSide: BorderSide(color: Colors.grey.shade300),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(
@@ -268,8 +325,8 @@ class _LoginPageState extends State<LoginPage> {
         borderRadius: BorderRadius.circular(12),
         borderSide: const BorderSide(color: Colors.red),
       ),
-      fillColor: Colors.grey.shade200,
-      filled: true,
+      // fillColor: Colors.grey.shade300,
+      //filled: true,
     );
   }
 }
