@@ -6,6 +6,7 @@ class MyMessageHandler {
       {required var scaffoldkey, required String customMessage}) {
     scaffoldkey.currentState!.showSnackBar(SnackBar(
             backgroundColor: Colors.transparent,
+            //  width: double.infinity,
             elevation: 0,
             content: Container(
               height: 80,

@@ -32,9 +32,9 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
   String? validatorMethodForEmail(value) {
     if (value!.isEmpty || value == '') {
       return 'Please Enter email';
-    } else if (value.isValidEmail() == false) {
+    } else if (value.toString().isValidEmail() == false) {
       return '    enter valid email only';
-    } else if (value.isValidEmail() == true) {
+    } else if (value.toString().isValidEmail() == true) {
       return null;
     } else {
       return null;
@@ -153,19 +153,18 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                           decoration: buildInputDecoration(
                             myPrefixIcon: CupertinoIcons.mail_solid,
                           ).copyWith(hintText: 'Enter your Email'),
-                          validator:
-                              //validatorMethodForEmail,
-                              (value) {
-                            if (value!.isEmpty || value == '') {
-                              return 'Please Enter email';
-                            } else if (value.isValidEmail() == false) {
-                              return '    enter valid email only';
-                            } else if (value.isValidEmail() == true) {
-                              return null;
-                            } else {
-                              return null;
-                            }
-                          },
+                          validator: validatorMethodForEmail,
+                          //     (value) {
+                          //   if (value!.isEmpty || value == '') {
+                          //     return 'Please Enter email';
+                          //   } else if (value.isValidEmail() == false) {
+                          //     return '    enter valid email only';
+                          //   } else if (value.isValidEmail() == true) {
+                          //     return null;
+                          //   } else {
+                          //     return null;
+                          //   }
+                          // },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                         ),
                       ),
@@ -225,7 +224,7 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                         children: [
                           const Text(
                             'Already a User?',
-                            style: TextStyle(fontSize: 24),
+                            style: TextStyle(fontSize: 20),
                           ),
                           const MyBox(mWidth: 14),
 
@@ -237,7 +236,7 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                               buttonWidget: const Text(
                                 'Login',
                                 style:
-                                    TextStyle(color: Colors.teal, fontSize: 24),
+                                    TextStyle(color: Colors.teal, fontSize: 20),
                               )),
                         ],
                       ),
