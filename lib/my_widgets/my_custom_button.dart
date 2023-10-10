@@ -24,12 +24,12 @@ class MyButton extends StatelessWidget {
               boxShadow: [
                 BoxShadow(
                     color: Colors.grey.shade500,
-                    offset: const Offset(-2, -2),
-                    blurRadius: 3,
+                    offset: const Offset(-4, -4),
+                    blurRadius: 4,
                     spreadRadius: 1),
                 BoxShadow(
                   color: Colors.grey.shade400,
-                  offset: Offset(4, 4),
+                  offset: const Offset(6, 4),
                   blurRadius: 3,
                   spreadRadius: 1,
                 ),

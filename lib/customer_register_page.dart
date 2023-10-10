@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -22,19 +23,69 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
 
   final TextEditingController passwordController = TextEditingController();
 
+  final TextEditingController reEnterPasswordController =
+      TextEditingController();
+
+  final TextEditingController nameController = TextEditingController();
+
+  final TextEditingController phoneController = TextEditingController();
+
+  final TextEditingController firmNameController = TextEditingController();
+
+  final TextEditingController cityController = TextEditingController();
+
   final GlobalKey<FormState> formKey = GlobalKey<FormState>();
 
   final GlobalKey<ScaffoldMessengerState> _scaffoldkey =
       GlobalKey<ScaffoldMessengerState>();
   bool isHidden = true;
 
-  ///===validates email controller===///
+  CollectionReference customers =
+      FirebaseFirestore.instance.collection('customers');
+
+  ///===validates name controller===///
+  //because we're creating our custom function for validator
+  // and until the compile time it does not know what type of
+  // data would it bring back, but we're expecting a type of String?
+  // so would parse that dynamic type data to string first
+  // and then have that passed for further validation which we created
+  // by extension method. Would happen for all the controllers.
+
+  // learnt on 10th October-session.
+  String? validatorMethodForName(value) {
+    if (value!.isEmpty || value == '') {
+      return 'Please Enter some name';
+    } else if (value.toString().isValidName() == false) {
+      return 'Use letters only';
+    } else if (value.toString().isValidName() == true) {
+      return null;
+    } else {
+      return null;
+    }
+  }
+
+  ///===validates email controller===//
+
   String? validatorMethodForEmail(value) {
     if (value!.isEmpty || value == '') {
       return 'Please Enter email';
     } else if (value.toString().isValidEmail() == false) {
       return '    enter valid email only';
     } else if (value.toString().isValidEmail() == true) {
+      return null;
+    } else {
+      return null;
+    }
+  }
+
+  ///===validates phone controller===///
+  String? validatorMethodForPhoneNumber(value) {
+    //todo: for phone number validation
+    if (value!.isEmpty || value == '') {
+      return 'Please Enter a valid Phone Number';
+    } else if (value.toString().isValidNumber() == false) {
+      return '   enter 10-digit numbers only';
+    } else if (value.toString().isValidNumber() == true) {
       return null;
     } else {
       return null;
@@ -50,7 +101,26 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
     }
   }
 
+  ///===validates re-Enter password controller===///
+  String? crossConfirmPassword(value) {
+    if (value!.isEmpty || value == '') {
+      return 'please re-enter password for confirming';
+    } else if (value != passwordController.text) {
+      return 'Password does not match';
+    } else {
+      return null;
+    }
+  }
+
+  //todo: later to set by
+  // todo: FirebaseFirestore.instance.collection.doc().set or update({});
+  //  todo: method; So their textfields would also be displayed later;
+
+  ///===validates business name controller===///
+  ///===validates city name controller===///
+
   ///===create user with google===///
+
   void createUserWithEmail() async {
     //todo: login with google
     if (formKey.currentState!.validate()) {
@@ -58,17 +128,26 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
         await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
                 email: emailController.text, password: passwordController.text)
-            .then((value) {
-          formKey.currentState!.reset();
-          print('successfully created');
-          MyMessageHandler.showMySnackBar(
-              scaffoldkey: _scaffoldkey,
-              customMessage: 'User Successfully Created');
-          Navigator.pushReplacement(context,
-              MaterialPageRoute(builder: (context) {
-            return const HomePage();
-          }));
-        });
+            .then(
+          (value) {
+            formKey.currentState!.reset();
+            print('successfully created');
+            MyMessageHandler.showMySnackBar(
+                scaffoldkey: _scaffoldkey,
+                customMessage: 'User Successfully Created');
+          },
+        );
+
+        /// the most right place to right this line to move
+        /// the user to the next page only after each validation is done.
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return const HomePage();
+            },
+          ),
+        );
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {
           MyMessageHandler.showMySnackBar(
@@ -100,26 +179,26 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                 child: SingleChildScrollView(
                   child: Column(
                     children: [
-                      const MyBox(mHeight: 30),
+                      const MyBox(mHeight: 13),
 
                       /// heading label
                       Transform.rotate(
                         angle: pi / 1,
                         child: const Text(
                           'Sign Up',
-                          style: TextStyle(fontSize: 30),
+                          style: TextStyle(fontSize: 27),
                         ),
                       ),
                       const MyBox(mHeight: 20),
 
                       /// icon
                       Container(
-                        height: 200,
-                        width: 200,
+                        height: 150,
+                        width: 150,
                         alignment: Alignment.center,
                         decoration: BoxDecoration(
                           color: Colors.grey.shade300,
-                          borderRadius: BorderRadius.circular(100),
+                          borderRadius: BorderRadius.circular(75),
                           boxShadow: [
                             BoxShadow(
                               color: Colors.grey.shade400,
@@ -140,12 +219,24 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                         child: Icon(
                           CupertinoIcons.person,
                           color: Colors.grey.shade900,
-                          size: 150,
+                          size: 110,
                         ),
                       ),
-                      const MyBox(mHeight: 40),
+                      const MyBox(mHeight: 25),
 
-                      /// email textfield
+                      ///===name textField===///
+                      buildContainerForContainerTFF(
+                          myWidget: TextFormField(
+                        controller: nameController,
+                        decoration: buildInputDecoration(
+                                myPrefixIcon: CupertinoIcons.person)
+                            .copyWith(hintText: 'Enter your name'),
+                        validator: validatorMethodForName,
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                      )),
+                      const MyBox(mHeight: 15),
+
+                      ///===email textfield===///
 
                       buildContainerForContainerTFF(
                         myWidget: TextFormField(
@@ -168,7 +259,22 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                         ),
                       ),
-                      const MyBox(mHeight: 20),
+                      const MyBox(mHeight: 15),
+
+                      ///===phone textfiled===///
+                      buildContainerForContainerTFF(
+                        myWidget: TextFormField(
+                          controller: phoneController,
+                          decoration: buildInputDecoration(
+                                  myPrefixIcon: CupertinoIcons.phone)
+                              .copyWith(hintText: 'Enter your phone'),
+                          keyboardType: TextInputType.number,
+                          validator: validatorMethodForPhoneNumber,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                        ),
+                        //
+                      ),
+                      const MyBox(mHeight: 15),
 
                       /// password textfield
                       buildContainerForContainerTFF(
@@ -190,42 +296,103 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                                     ),
                                   ),
                                   hintText: 'Set a password'),
-                          validator:
-                              //validatorMethodForPassword,
-                              (value) {
-                            if (value!.isEmpty || value == '') {
-                              return 'Please enter password';
-                            } else {
-                              return null;
-                            }
-                          },
+                          validator: validatorMethodForPassword,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           obscureText: isHidden,
                         ),
                       ),
+                      const MyBox(mHeight: 15),
 
-                      const MyBox(mHeight: 40),
+                      ///===business textfield===///
+                      //todo: when set or update method would be called
+                      //todo: through FirebaseFirestore.instance.collection().doc();
+                      // buildContainerForContainerTFF(
+                      //   myWidget: TextFormField(
+                      //     controller: firmNameController,
+                      //     decoration: buildInputDecoration(
+                      //             myPrefixIcon: CupertinoIcons.building_2_fill)
+                      //         .copyWith(hintText: 'Enter your firm\'s name'),
+                      //     validator: (value) {
+                      //       if (value!.isEmpty || value == '') {
+                      //         return 'enter business name';
+                      //       } else if (value.isValidBusinessName() == false) {
+                      //         return 'use letters only';
+                      //       } else if (value.isValidBusinessName() == true) {
+                      //         return null;
+                      //       } else {
+                      //         return null;
+                      //       }
+                      //       // todo: for business name validation
+                      //     },
+                      //     autovalidateMode: AutovalidateMode.onUserInteraction,
+                      //   ),
+                      // ),
+                      // const MyBox(mHeight: 15),
+
+                      ///===city textfield===///
+                      // buildContainerForContainerTFF(
+                      //   myWidget: TextFormField(
+                      //     controller: cityController,
+                      //     decoration: buildInputDecoration(
+                      //             myPrefixIcon: CupertinoIcons.map)
+                      //         .copyWith(hintText: 'Enter your city'),
+                      //     validator: (value) {
+                      //       //todo: city validation
+                      //     },
+                      //   ),
+
+                      //
+                      //),
+
+                      ///===re-enter your password===///
+                      buildContainerForContainerTFF(
+                        myWidget: TextFormField(
+                          controller: reEnterPasswordController,
+                          decoration: buildInputDecoration(
+                                  myPrefixIcon: CupertinoIcons.lock)
+                              .copyWith(
+                                  suffixIcon: IconButton(
+                                    onPressed: () {
+                                      setState(() {
+                                        isHidden = !isHidden;
+                                      });
+                                    },
+                                    icon: Icon(
+                                      isHidden
+                                          ? CupertinoIcons.eye
+                                          : CupertinoIcons.eye_slash,
+                                    ),
+                                  ),
+                                  hintText: 're-Enter a password'),
+                          validator:
+                              //  crossConfirmPassword,
+                              crossConfirmPassword,
+
+                          //crossConfirmPassword,
+                          autovalidateMode: AutovalidateMode.onUserInteraction,
+                          obscureText: isHidden,
+                        ),
+                      ),
+                      const MyBox(mHeight: 30),
 
                       /// button for login/ creating user for the first time
                       MyButton(
                           onTapping: createUserWithEmail,
-                          buttonWidth: size.width,
-                          buttonHeight: 70,
+                          buttonWidth: size.width * .7,
+                          buttonHeight: 60,
                           buttonWidget: const FittedBox(
                             child: Text(
-                              'Sign-Up',
+                              'Register',
                               style:
-                                  TextStyle(color: Colors.black, fontSize: 80),
+                                  TextStyle(color: Colors.black, fontSize: 40),
                             ),
                           )),
                       const MyBox(mHeight: 26),
                       Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          const Text(
-                            'Already a User?',
-                            style: TextStyle(fontSize: 20),
-                          ),
+                          const Text('Already a User?',
+                              style: TextStyle(fontSize: 20)),
                           const MyBox(mWidth: 14),
 
                           ///===if user already exists===///
@@ -240,6 +407,7 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                               )),
                         ],
                       ),
+                      const MyBox(mHeight: 15),
                     ],
                   ),
                 ),
@@ -296,5 +464,18 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
         size: 30,
       ),
     );
+  }
+}
+
+extension ValidPhoneNumber on String {
+  bool isValidNumber() {
+    return RegExp(r'^[6-9][0-9]{9}$').hasMatch(this);
+  }
+}
+
+//todo: to correct it
+extension ValidBusinessName on String {
+  bool isValidBusinessName() {
+    return RegExp(r'^[a-zA-Z]+[\s]*[a-zA-Z]*[\s]*[a-zA-Z]*$').hasMatch(this);
   }
 }

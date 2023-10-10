@@ -14,12 +14,8 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController nameController = TextEditingController();
-  TextEditingController phoneController = TextEditingController();
-  TextEditingController firmNameController = TextEditingController();
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  TextEditingController cityController = TextEditingController();
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
   bool isObscured = true;
 
@@ -110,68 +106,6 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                   const MyBox(mHeight: 20),
 
-                  /// username textfield
-
-                  buildContainerForTFF(
-                    myChild: TextFormField(
-                      controller: nameController,
-                      decoration: buildInputDecoration()
-                          .copyWith(hintText: 'Enter your name'),
-                      validator: (value) {
-                        if (value!.isEmpty || value == '') {
-                          return 'Please Enter some name';
-                        } else if (value.isValidName() == false) {
-                          return 'Use letters only';
-                        }
-                        // else if (value.isValidName() == true) {
-                        //   return null;
-                        //}
-                        else {
-                          return null;
-                        }
-
-                        // if (value!.isNotEmpty) {
-                        //   return null;
-                        // } else {
-                        //   return 'Please Enter your name';
-                        // }
-                      },
-                      autovalidateMode: AutovalidateMode.onUserInteraction,
-                    ),
-                  ),
-                  const MyBox(mHeight: 12),
-
-                  ///phone textfield
-                  buildContainerForTFF(
-                    myChild: TextFormField(
-                      controller: phoneController,
-                      decoration: buildInputDecoration()
-                          .copyWith(hintText: 'Enter your phone'),
-                      keyboardType: TextInputType.number,
-                    ),
-                  ),
-                  const MyBox(mHeight: 12),
-
-                  /// firmName textfield
-                  buildContainerForTFF(
-                    myChild: TextFormField(
-                      controller: firmNameController,
-                      decoration: buildInputDecoration()
-                          .copyWith(hintText: 'Enter your firm\'s name'),
-                    ),
-                  ),
-                  const MyBox(mHeight: 12),
-
-                  /// city textfield
-                  buildContainerForTFF(
-                    myChild: TextFormField(
-                      controller: cityController,
-                      decoration: buildInputDecoration()
-                          .copyWith(hintText: 'Enter your city'),
-                    ),
-                  ),
-                  const MyBox(mHeight: 12),
-
                   /// email textfield
                   buildContainerForTFF(
                     myChild: TextFormField(
@@ -180,7 +114,7 @@ class _LoginPageState extends State<LoginPage> {
                           .copyWith(hintText: 'Enter your email'),
                     ),
                   ),
-                  const MyBox(mHeight: 12),
+                  const MyBox(mHeight: 22),
 
                   /// password textfield
                   buildContainerForTFF(
@@ -203,14 +137,14 @@ class _LoginPageState extends State<LoginPage> {
                       obscureText: isObscured,
                     ),
                   ),
-                  const MyBox(mHeight: 12),
+                  const MyBox(mHeight: 16),
 
                   /// forgot password
                   const Text(
                     'forgot Password?',
                     textAlign: TextAlign.right,
                   ),
-                  const MyBox(mHeight: 12),
+                  const MyBox(mHeight: 32),
 
                   /// sign-in button
                   MyButton(
@@ -222,7 +156,7 @@ class _LoginPageState extends State<LoginPage> {
                       style: TextStyle(color: Colors.black, fontSize: 29),
                     ),
                   ),
-                  const MyBox(mHeight: 12),
+                  const MyBox(mHeight: 22),
 
                   /// or continue with
                   Row(
@@ -301,9 +235,14 @@ class _LoginPageState extends State<LoginPage> {
               Colors.grey.shade400,
               Colors.grey.shade600
             ],
-            begin: Alignment.topLeft,
-            end: Alignment.bottomRight,
-            stops: const [0.3, 0.7, 0.8, 0.9]),
+            // begin: Alignment.topLeft,
+            //end: Alignment.bottomRight,
+            stops: const [
+              0.2,
+              0.4,
+              0.7,
+              0.9
+            ]),
       ),
       child: myChild,
     );
