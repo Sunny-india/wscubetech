@@ -18,31 +18,34 @@ class LoginPage extends StatefulWidget {
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
-  GlobalKey<FormState> formkey = GlobalKey<FormState>();
+  GlobalKey<FormState> formKey = GlobalKey<FormState>();
   GlobalKey<ScaffoldMessengerState> scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
 
   bool isObscured = true;
-
-  void signUserIn() async {
-    if (formkey.currentState!.validate()) {
-      try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: emailController.text.toString(),
-            password: passwordController.text.toString());
-        print('sign in just');
-        formkey.currentState!.reset();
-      } on FirebaseAuthException catch (e) {
-        if (e.code == 'user-not-found') {
-          MyMessageHandler.showMySnackBar(
-              scaffoldkey: scaffoldKey, customMessage: 'user-not-found');
-          print('User Not Found');
-          //todo: ScaffoldMessenger or AlertDialog to be used here
-        }
-        if (e.code == 'wrong-password') {
-          print('Wrong Password');
-          //todo: ScaffoldMessenger or AlertDialog to be used here
-        }
+  bool isProcessing = false;
+  void loginUser() async {
+    try {
+      if (formKey.currentState!.validate()) {
+        setState(() {
+          isProcessing = true;
+        });
+        UserCredential userCredential = await FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+                email: emailController.text.toString(),
+                password: passwordController.text.toString());
+        print(userCredential.user!.email.toString());
+      }
+    } on FirebaseAuthException catch (e) {
+      if (e.code == 'user-not-found') {
+        MyMessageHandler.showMySnackBar(
+            scaffoldkey: scaffoldKey,
+            customMessage: 'No user found for that email.');
+        print('user not found');
+      } else if (e.code == 'wrong-password') {
+        MyMessageHandler.showMySnackBar(
+            scaffoldkey: scaffoldKey, customMessage: 'wrong-password');
+        print('wrong password entered');
       }
     }
   }
@@ -70,7 +73,7 @@ class _LoginPageState extends State<LoginPage> {
             reverse: true,
             keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
             child: Form(
-              key: formkey,
+              key: formKey,
               child: Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 18.0),
                 child: Column(
@@ -156,7 +159,7 @@ class _LoginPageState extends State<LoginPage> {
 
                     /// login button
                     MyButton(
-                      onTapping: signUserIn,
+                      onTapping: loginUser,
                       buttonWidth: size.width * .90,
                       buttonHeight: 55,
                       buttonWidget: const Text(
@@ -240,24 +243,30 @@ class _LoginPageState extends State<LoginPage> {
                     Row(
                       mainAxisAlignment: MainAxisAlignment.center,
                       children: [
-                        MyButton(
-                            onTapping: () {
-                              Navigator.pushReplacement(context,
-                                  MaterialPageRoute(builder: (context) {
-                                return const CustomerRegisterPage();
-                              }));
-                            },
-                            buttonHeight: 45,
-                            buttonWidth: 100,
-                            buttonWidget: const FittedBox(
-                              child: Text(
-                                'Register',
-                                style: TextStyle(
-                                    color: Colors.teal,
-                                    fontSize: 18,
-                                    fontWeight: FontWeight.w600),
-                              ),
-                            )),
+                        isProcessing
+                            ? Center(
+                                child: CircularProgressIndicator(
+                                  color: Colors.grey.shade800,
+                                ),
+                              )
+                            : MyButton(
+                                onTapping: () {
+                                  Navigator.pushReplacement(context,
+                                      MaterialPageRoute(builder: (context) {
+                                    return const CustomerRegisterPage();
+                                  }));
+                                },
+                                buttonHeight: 45,
+                                buttonWidth: 100,
+                                buttonWidget: const FittedBox(
+                                  child: Text(
+                                    'Register',
+                                    style: TextStyle(
+                                        color: Colors.teal,
+                                        fontSize: 18,
+                                        fontWeight: FontWeight.w600),
+                                  ),
+                                )),
                       ],
                     ),
                   ],
