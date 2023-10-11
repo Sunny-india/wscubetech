@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:wscubetech/customer_register_page.dart';
+import 'package:wscubetech/my_widgets/my_message_handler.dart';
 
 import 'my_widgets/my_container_for_logo.dart';
 import 'my_widgets/my_custom_button.dart';
@@ -17,40 +19,23 @@ class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
   TextEditingController passwordController = TextEditingController();
   GlobalKey<FormState> formkey = GlobalKey<FormState>();
+  GlobalKey<ScaffoldMessengerState> scaffoldKey =
+      GlobalKey<ScaffoldMessengerState>();
+
   bool isObscured = true;
 
   void signUserIn() async {
     if (formkey.currentState!.validate()) {
-      /// show loading circle
-      /// and at the end of this function have that popped
-      // showDialog(
-      //     context: context,
-      //     builder: (context) {
-      //       return const Center(
-      //         child: CircularProgressIndicator(
-      //           color: Colors.deepPurple,
-      //         ),
-      //       );
-      //     });
-
-      ///===sending user data to firebase and having
-      /// it checked if it exists or not.
-      /// When successful, it also allows users to call
-      /// their authStateChanges, itTokenChanges, or userChanges
-      /// based on authStateChanges, we can always send our user
-      /// to different pages from SplashScreen.===///
-
       try {
-        UserCredential userCredential = await FirebaseAuth.instance
-            .signInWithEmailAndPassword(
-                email: emailController.text, password: passwordController.text);
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: emailController.text.toString(),
+            password: passwordController.text.toString());
         print('sign in just');
         formkey.currentState!.reset();
-
-        /// at this point the authStateChanges method would listen
-        /// and for that we've set its behaviour already in SplashScreen
       } on FirebaseAuthException catch (e) {
         if (e.code == 'user-not-found') {
+          MyMessageHandler.showMySnackBar(
+              scaffoldkey: scaffoldKey, customMessage: 'user-not-found');
           print('User Not Found');
           //todo: ScaffoldMessenger or AlertDialog to be used here
         }
@@ -76,134 +61,207 @@ class _LoginPageState extends State<LoginPage> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.sizeOf(context);
-    return Scaffold(
-      backgroundColor: Colors.grey.shade300,
-      body: SafeArea(
-        child: SingleChildScrollView(
-          reverse: true,
-          keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
-          child: Form(
-            key: formkey,
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 18.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  MyBox(mHeight: size.height * .11),
+    return ScaffoldMessenger(
+      key: scaffoldKey,
+      child: Scaffold(
+        backgroundColor: Colors.grey.shade300,
+        body: SafeArea(
+          child: SingleChildScrollView(
+            reverse: true,
+            keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+            child: Form(
+              key: formkey,
+              child: Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 18.0),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.stretch,
+                  children: [
+                    MyBox(mHeight: size.height * .11),
 
-                  ///logo
-                  const Icon(
-                    CupertinoIcons.lock,
-                    color: Colors.black,
-                    size: 100,
-                  ),
-
-                  /// Welcome back
-                  Text(
-                    'Welcome!',
-                    textAlign: TextAlign.center,
-                    style: TextStyle(color: Colors.grey.shade700, fontSize: 20),
-                  ),
-                  const MyBox(mHeight: 20),
-
-                  /// email textfield
-                  buildContainerForTFF(
-                    myChild: TextFormField(
-                      controller: emailController,
-                      decoration: buildInputDecoration()
-                          .copyWith(hintText: 'Enter your email'),
+                    ///logo
+                    const Icon(
+                      CupertinoIcons.lock,
+                      color: Colors.black,
+                      size: 100,
                     ),
-                  ),
-                  const MyBox(mHeight: 22),
 
-                  /// password textfield
-                  buildContainerForTFF(
-                    myChild: TextFormField(
-                      controller: passwordController,
-                      decoration: buildInputDecoration().copyWith(
-                          hintText: 'Enter your password',
-                          hintStyle: TextStyle(color: Colors.grey.shade500),
-                          suffixIcon: IconButton(
-                            onPressed: () {
-                              setState(() {
-                                isObscured = !isObscured;
-                              });
+                    /// Welcome back
+                    Text('Welcome!',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                            color: Colors.grey.shade700, fontSize: 20)),
+                    const MyBox(mHeight: 20),
+
+                    /// email textfield
+                    buildContainerForTFF(
+                      myChild: TextFormField(
+                        controller: emailController,
+                        decoration: buildInputDecoration()
+                            .copyWith(hintText: 'Enter your email'),
+                        validator: (value) {
+                          //todo: how to call validatorMethod (which works the same)
+                          //todo: from CustomerRegisterPage() here
+                          if (value!.isEmpty || value == '') {
+                            return 'Please Enter email';
+                          } else if (value.isValidEmail() == false) {
+                            return '    enter valid email only';
+                          } else if (value.isValidEmail() == true) {
+                            return null;
+                          } else {
+                            return null;
+                          }
+                        },
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                      ),
+                    ),
+                    const MyBox(mHeight: 22),
+
+                    /// password textfield
+                    buildContainerForTFF(
+                      myChild: TextFormField(
+                        controller: passwordController,
+                        decoration: buildInputDecoration().copyWith(
+                            hintText: 'Enter your password',
+                            hintStyle: TextStyle(color: Colors.grey.shade500),
+                            suffixIcon: IconButton(
+                              onPressed: () {
+                                setState(() {
+                                  isObscured = !isObscured;
+                                });
+                              },
+                              icon: Icon(
+                                isObscured
+                                    ? CupertinoIcons.eye
+                                    : CupertinoIcons.eye_slash,
+                                color: Colors.black,
+                              ),
+                            )),
+                        obscureText: isObscured,
+                        validator: (value) {
+                          //todo: how to use that static method from CustomerRegisterPage;
+                          if (value!.isEmpty || value == '') {
+                            return 'Please enter password';
+                          } else {
+                            return null;
+                          }
+                        },
+                        autovalidateMode: AutovalidateMode.onUserInteraction,
+                      ),
+                    ),
+                    const MyBox(mHeight: 16),
+
+                    /// forgot password
+                    const Text('forgot Password?', textAlign: TextAlign.right),
+                    const MyBox(mHeight: 32),
+
+                    /// login button
+                    MyButton(
+                      onTapping: signUserIn,
+                      buttonWidth: size.width * .90,
+                      buttonHeight: 55,
+                      buttonWidget: const Text(
+                        'Login',
+                        style: TextStyle(color: Colors.black, fontSize: 29),
+                      ),
+                    ),
+                    const MyBox(mHeight: 22),
+
+                    /// or continue with
+                    Row(
+                      children: [
+                        Expanded(
+                            child: Divider(
+                          thickness: 0.5,
+                          color: Colors.grey.shade400,
+                        )),
+                        const Text(
+                          'Or Continue With',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        Expanded(
+                            child: Divider(
+                          thickness: 0.5,
+                          color: Colors.grey.shade400,
+                        ))
+                      ],
+                    ),
+                    const MyBox(mHeight: 12),
+
+                    /// google sign-in button
+                    /// apple sign-in button
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        SquareContainerForLogo(
+                          onTapping: signInWithGoogle,
+                          myHeight: 80,
+                          myWidth: 80,
+                          containerColor: Colors.grey.shade300,
+                          imagePath: 'assets/images/googleLogo.jpg',
+                        ),
+                        const MyBox(
+                          mWidth: 12,
+                        ),
+                        SquareContainerForLogo(
+                          imagePath: 'assets/images/appleLogo.png',
+                          myHeight: 80,
+                          myWidth: 80,
+                          containerColor: Colors.grey.shade300,
+                          onTapping: signInWithApple,
+                        )
+                      ],
+                    ),
+                    const MyBox(mHeight: 32),
+
+                    /// not a member?
+                    Row(
+                      children: [
+                        Expanded(
+                          child: Divider(
+                            thickness: 0.5,
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                        const Text(
+                          'Not a member?',
+                          style: TextStyle(fontSize: 20),
+                        ),
+                        Expanded(
+                          child: Divider(
+                            thickness: 0.5,
+                            color: Colors.grey.shade400,
+                          ),
+                        ),
+                      ],
+                    ),
+                    const MyBox(mHeight: 16),
+
+                    /// register now
+                    Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        MyButton(
+                            onTapping: () {
+                              Navigator.pushReplacement(context,
+                                  MaterialPageRoute(builder: (context) {
+                                return const CustomerRegisterPage();
+                              }));
                             },
-                            icon: const Icon(
-                              CupertinoIcons.eye,
-                              color: Colors.black,
-                            ),
-                          )),
-                      obscureText: isObscured,
+                            buttonHeight: 45,
+                            buttonWidth: 100,
+                            buttonWidget: const FittedBox(
+                              child: Text(
+                                'Register',
+                                style: TextStyle(
+                                    color: Colors.teal,
+                                    fontSize: 18,
+                                    fontWeight: FontWeight.w600),
+                              ),
+                            )),
+                      ],
                     ),
-                  ),
-                  const MyBox(mHeight: 16),
-
-                  /// forgot password
-                  const Text(
-                    'forgot Password?',
-                    textAlign: TextAlign.right,
-                  ),
-                  const MyBox(mHeight: 32),
-
-                  /// sign-in button
-                  MyButton(
-                    onTapping: signUserIn,
-                    buttonWidth: size.width * .90,
-                    buttonHeight: 55,
-                    buttonWidget: const Text(
-                      'Sign In',
-                      style: TextStyle(color: Colors.black, fontSize: 29),
-                    ),
-                  ),
-                  const MyBox(mHeight: 22),
-
-                  /// or continue with
-                  Row(
-                    children: [
-                      Expanded(
-                          child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey.shade400,
-                      )),
-                      const Text('Or Continue With'),
-                      Expanded(
-                          child: Divider(
-                        thickness: 0.5,
-                        color: Colors.grey.shade400,
-                      ))
-                    ],
-                  ),
-                  const MyBox(mHeight: 12),
-
-                  /// google sign-in button
-                  /// apple sign-in button
-                  Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      SquareContainerForLogo(
-                        onTapping: signInWithGoogle,
-                        myHeight: 80,
-                        myWidth: 80,
-                        containerColor: Colors.grey.shade300,
-                        imagePath: 'assets/images/googleLogo.jpg',
-                      ),
-                      const MyBox(
-                        mWidth: 12,
-                      ),
-                      SquareContainerForLogo(
-                        imagePath: 'assets/images/appleLogo.png',
-                        myHeight: 80,
-                        myWidth: 80,
-                        containerColor: Colors.grey.shade300,
-                        onTapping: signInWithApple,
-                      )
-                    ],
-                  ),
-                  const MyBox(mHeight: 12),
-
-                  /// not a member? register now
-                ],
+                  ],
+                ),
               ),
             ),
           ),

@@ -1,3 +1,10 @@
+///===sending user data to firebase and having
+/// it checked if it exists or not.
+/// When successful, it also allows users to call
+/// their authStateChanges, itTokenChanges, or userChanges
+/// based on authStateChanges, we can always send our user
+/// to different pages from SplashScreen.===///
+
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 

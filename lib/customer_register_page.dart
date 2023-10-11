@@ -5,10 +5,10 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:wscubetech/login_page.dart';
+import 'package:wscubetech/model/customer_data_model.dart';
 import 'package:wscubetech/my_widgets/my_custom_button.dart';
 import 'package:wscubetech/my_widgets/my_custom_sized_box.dart';
 
-import 'home_page.dart';
 import 'my_widgets/my_message_handler.dart';
 
 class CustomerRegisterPage extends StatefulWidget {
@@ -30,7 +30,7 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
 
   final TextEditingController phoneController = TextEditingController();
 
-  final TextEditingController firmNameController = TextEditingController();
+  final TextEditingController businessNameController = TextEditingController();
 
   final TextEditingController cityController = TextEditingController();
 
@@ -42,6 +42,8 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
 
   CollectionReference customers =
       FirebaseFirestore.instance.collection('customers');
+
+  bool isProcessing = false;
 
   ///===validates name controller===///
   //because we're creating our custom function for validator
@@ -93,7 +95,7 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
   }
 
   ///===validates password controller===///
-  String? validatorMethodForPassword(value) {
+  static String? validatorMethodForPassword(value) {
     if (value!.isEmpty || value == '') {
       return 'Please enter password';
     } else {
@@ -124,19 +126,31 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
   void createUserWithEmail() async {
     //todo: login with google
     if (formKey.currentState!.validate()) {
+      setState(() {
+        isProcessing = true;
+      });
       try {
         await FirebaseAuth.instance
             .createUserWithEmailAndPassword(
                 email: emailController.text, password: passwordController.text)
-            .then(
-          (value) {
-            formKey.currentState!.reset();
-            print('successfully created');
-            MyMessageHandler.showMySnackBar(
-                scaffoldkey: _scaffoldkey,
-                customMessage: 'User Successfully Created');
-          },
-        );
+            .then((value) async {
+          await customers.doc(value.user!.uid).set(Customer(
+                cid: value.user!.uid,
+                name: nameController.text,
+                phone: phoneController.text,
+                email: emailController.text,
+                businessName: '',
+                city: '',
+              ).toJson());
+          formKey.currentState!.reset();
+          setState(() {
+            isProcessing = false;
+          });
+        });
+
+        MyMessageHandler.showMySnackBar(
+            scaffoldkey: _scaffoldkey,
+            customMessage: 'User Successfully Created');
 
         /// the most right place to right this line to move
         /// the user to the next page only after each validation is done.
@@ -144,16 +158,22 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
           context,
           MaterialPageRoute(
             builder: (context) {
-              return const HomePage();
+              return const LoginPage();
             },
           ),
         );
       } on FirebaseAuthException catch (e) {
         if (e.code == 'email-already-in-use') {
+          setState(() {
+            isProcessing = false;
+          });
           MyMessageHandler.showMySnackBar(
               scaffoldkey: _scaffoldkey, customMessage: 'email-already-in-use');
           print('User Already registered');
         } else if (e.code == 'weak-password') {
+          setState(() {
+            isProcessing = false;
+          });
           MyMessageHandler.showMySnackBar(
               scaffoldkey: _scaffoldkey, customMessage: 'weak-password');
 
@@ -245,17 +265,6 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                             myPrefixIcon: CupertinoIcons.mail_solid,
                           ).copyWith(hintText: 'Enter your Email'),
                           validator: validatorMethodForEmail,
-                          //     (value) {
-                          //   if (value!.isEmpty || value == '') {
-                          //     return 'Please Enter email';
-                          //   } else if (value.isValidEmail() == false) {
-                          //     return '    enter valid email only';
-                          //   } else if (value.isValidEmail() == true) {
-                          //     return null;
-                          //   } else {
-                          //     return null;
-                          //   }
-                          // },
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                         ),
                       ),
@@ -364,11 +373,7 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                                     ),
                                   ),
                                   hintText: 're-Enter a password'),
-                          validator:
-                              //  crossConfirmPassword,
-                              crossConfirmPassword,
-
-                          //crossConfirmPassword,
+                          validator: crossConfirmPassword,
                           autovalidateMode: AutovalidateMode.onUserInteraction,
                           obscureText: isHidden,
                         ),
@@ -376,28 +381,39 @@ class _CustomerRegisterPageState extends State<CustomerRegisterPage> {
                       const MyBox(mHeight: 30),
 
                       /// button for login/ creating user for the first time
-                      MyButton(
-                          onTapping: createUserWithEmail,
-                          buttonWidth: size.width * .7,
-                          buttonHeight: 60,
-                          buttonWidget: const FittedBox(
-                            child: Text(
-                              'Register',
-                              style:
-                                  TextStyle(color: Colors.black, fontSize: 40),
-                            ),
-                          )),
+                      isProcessing
+                          ? Center(
+                              child: CircularProgressIndicator(
+                              color: Colors.grey.shade800,
+                            ))
+                          : MyButton(
+                              onTapping: createUserWithEmail,
+                              buttonWidth: size.width * .7,
+                              buttonHeight: 60,
+                              buttonWidget: const FittedBox(
+                                child: Text(
+                                  'Register',
+                                  style: TextStyle(
+                                      color: Colors.black, fontSize: 29),
+                                ),
+                              )),
                       const MyBox(mHeight: 26),
+
+                      ///===if user already exists===///
+
                       Row(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           const Text('Already a User?',
                               style: TextStyle(fontSize: 20)),
                           const MyBox(mWidth: 14),
-
-                          ///===if user already exists===///
                           MyButton(
-                              onTapping: () {},
+                              onTapping: () {
+                                Navigator.pushReplacement(context,
+                                    MaterialPageRoute(builder: (context) {
+                                  return const LoginPage();
+                                }));
+                              },
                               buttonHeight: 45,
                               buttonWidth: 70,
                               buttonWidget: const Text(
