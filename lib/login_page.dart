@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import 'package:wscubetech/customer_register_page.dart';
 import 'package:wscubetech/my_widgets/my_message_handler.dart';
 
+import 'home_page.dart';
 import 'my_widgets/my_container_for_logo.dart';
 import 'my_widgets/my_custom_button.dart';
 import 'my_widgets/my_custom_sized_box.dart';
@@ -17,39 +18,71 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   TextEditingController emailController = TextEditingController();
+
   TextEditingController passwordController = TextEditingController();
+
   GlobalKey<FormState> formKey = GlobalKey<FormState>();
+
   GlobalKey<ScaffoldMessengerState> scaffoldKey =
       GlobalKey<ScaffoldMessengerState>();
 
   bool isObscured = true;
+
   bool isProcessing = false;
-  void loginUser() async {
-    try {
-      if (formKey.currentState!.validate()) {
+
+  ///===sign in with email and password===///
+  void loginWithEmail() async {
+    //todo: login with email and password
+
+    if (formKey.currentState!.validate()) {
+      setState(() {
+        isProcessing = true;
+      });
+      try {
+        await FirebaseAuth.instance.signInWithEmailAndPassword(
+            email: emailController.text, password: passwordController.text);
+        formKey.currentState!.reset();
         setState(() {
-          isProcessing = true;
+          isProcessing = false;
         });
-        UserCredential userCredential = await FirebaseAuth.instance
-            .signInWithEmailAndPassword(
-                email: emailController.text.toString(),
-                password: passwordController.text.toString());
-        print(userCredential.user!.email.toString());
-      }
-    } on FirebaseAuthException catch (e) {
-      if (e.code == 'user-not-found') {
+//todo: not working?
         MyMessageHandler.showMySnackBar(
             scaffoldkey: scaffoldKey,
-            customMessage: 'No user found for that email.');
-        print('user not found');
-      } else if (e.code == 'wrong-password') {
-        MyMessageHandler.showMySnackBar(
-            scaffoldkey: scaffoldKey, customMessage: 'wrong-password');
-        print('wrong password entered');
+            customMessage: 'User Successfully Created');
+
+        /// the most right place to right this line to move
+        /// the user to the next page only after each validation is done.
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(
+            builder: (context) {
+              return const HomePage();
+            },
+          ),
+        );
+      } on FirebaseAuthException catch (e) {
+        //todo: whole exception catch is not working. WHY? Raunak bhaiya?
+        if (e.code == 'user-not-found') {
+          setState(() {
+            isProcessing = false;
+          });
+          MyMessageHandler.showMySnackBar(
+              scaffoldkey: scaffoldKey, customMessage: 'user not found');
+          print('User not found');
+        } else if (e.code == 'wrong-password') {
+          setState(() {
+            isProcessing = false;
+          });
+          MyMessageHandler.showMySnackBar(
+              scaffoldkey: scaffoldKey, customMessage: 'wrong-password');
+
+          print('Wrong Password');
+        }
       }
     }
   }
 
+//
   ///===sign in with Google===///
   void signInWithGoogle() {
     print('Sign in With Google');
@@ -82,11 +115,8 @@ class _LoginPageState extends State<LoginPage> {
                     MyBox(mHeight: size.height * .11),
 
                     ///logo
-                    const Icon(
-                      CupertinoIcons.lock,
-                      color: Colors.black,
-                      size: 100,
-                    ),
+                    const Icon(CupertinoIcons.lock,
+                        color: Colors.black, size: 100),
 
                     /// Welcome back
                     Text('Welcome!',
@@ -158,15 +188,22 @@ class _LoginPageState extends State<LoginPage> {
                     const MyBox(mHeight: 32),
 
                     /// login button
-                    MyButton(
-                      onTapping: loginUser,
-                      buttonWidth: size.width * .90,
-                      buttonHeight: 55,
-                      buttonWidget: const Text(
-                        'Login',
-                        style: TextStyle(color: Colors.black, fontSize: 29),
-                      ),
-                    ),
+                    isProcessing
+                        ? Center(
+                            child: CircularProgressIndicator(
+                              color: Colors.grey.shade800,
+                            ),
+                          )
+                        : MyButton(
+                            onTapping: loginWithEmail,
+                            buttonWidth: size.width * .90,
+                            buttonHeight: 55,
+                            buttonWidget: const Text(
+                              'Login',
+                              style:
+                                  TextStyle(color: Colors.black, fontSize: 29),
+                            ),
+                          ),
                     const MyBox(mHeight: 22),
 
                     /// or continue with
@@ -239,36 +276,26 @@ class _LoginPageState extends State<LoginPage> {
                     ),
                     const MyBox(mHeight: 16),
 
-                    /// register now
-                    Row(
-                      mainAxisAlignment: MainAxisAlignment.center,
-                      children: [
-                        isProcessing
-                            ? Center(
-                                child: CircularProgressIndicator(
-                                  color: Colors.grey.shade800,
-                                ),
-                              )
-                            : MyButton(
-                                onTapping: () {
-                                  Navigator.pushReplacement(context,
-                                      MaterialPageRoute(builder: (context) {
-                                    return const CustomerRegisterPage();
-                                  }));
-                                },
-                                buttonHeight: 45,
-                                buttonWidth: 100,
-                                buttonWidget: const FittedBox(
-                                  child: Text(
-                                    'Register',
-                                    style: TextStyle(
-                                        color: Colors.teal,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.w600),
-                                  ),
-                                )),
-                      ],
-                    ),
+                    /// register now button
+                    MyButton(
+                        onTapping: () {
+                          Navigator.pushReplacement(context,
+                              MaterialPageRoute(builder: (context) {
+                            return const CustomerRegisterPage();
+                          }));
+                        },
+                        buttonHeight: 45,
+                        buttonWidth: 100,
+                        buttonWidget: const FittedBox(
+                          child: Text(
+                            'Register',
+                            style: TextStyle(
+                                color: Colors.teal,
+                                fontSize: 18,
+                                fontWeight: FontWeight.w600),
+                          ),
+                        )),
+                    const MyBox(mHeight: 12),
                   ],
                 ),
               ),
