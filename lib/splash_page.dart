@@ -53,7 +53,9 @@ class _SplashScreenState extends State<SplashScreen> {
           }
           if (snapshot.hasData) {
             /// it means the user is logged in///
-            return const HomePage();
+            return HomePage(
+              userId: 'Hello',
+            );
           } else {
             /// it means the user is not logged in ///
             return const LoginPage();

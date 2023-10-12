@@ -3,8 +3,8 @@ import 'package:flutter/material.dart';
 import 'package:wscubetech/customer_register_page.dart';
 
 class HomePage extends StatefulWidget {
-  const HomePage({super.key});
-
+  HomePage({super.key, required this.userId});
+  String? userId;
   @override
   State<HomePage> createState() => _HomePageState();
 }
@@ -21,7 +21,7 @@ class _HomePageState extends State<HomePage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: const Text('HomePage'),
+        title: Text('${widget.userId!.toString()} '),
         actions: [
           IconButton(
             onPressed: signMeOut,

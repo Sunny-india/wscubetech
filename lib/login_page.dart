@@ -30,6 +30,8 @@ class _LoginPageState extends State<LoginPage> {
 
   bool isProcessing = false;
 
+  String? userID;
+
   ///===sign in with email and password===///
   void loginWithEmail() async {
     //todo: login with email and password
@@ -39,40 +41,47 @@ class _LoginPageState extends State<LoginPage> {
         isProcessing = true;
       });
       try {
-        await FirebaseAuth.instance.signInWithEmailAndPassword(
-            email: emailController.text, password: passwordController.text);
-        formKey.currentState!.reset();
-        setState(() {
-          isProcessing = false;
+        await FirebaseAuth.instance
+            .signInWithEmailAndPassword(
+                email: emailController.text.trim().toString(),
+                password: passwordController.text.trim().toString())
+            .then((value) {
+          formKey.currentState!.reset();
+          userID = value.user!.uid.toString();
+          setState(() {
+            isProcessing = false;
+          });
         });
-//todo: not working?
-        MyMessageHandler.showMySnackBar(
-            scaffoldkey: scaffoldKey,
-            customMessage: 'User Successfully Created');
+        //todo: not working?
 
         /// the most right place to right this line to move
         /// the user to the next page only after each validation is done.
+        // ignore: use_build_context_synchronously
         Navigator.pushReplacement(
           context,
           MaterialPageRoute(
             builder: (context) {
-              return const HomePage();
+              return HomePage(userId: userID);
             },
           ),
         );
       } on FirebaseAuthException catch (e) {
         //todo: whole exception catch is not working. WHY? Raunak bhaiya?
-        if (e.code == 'user-not-found') {
+        if (e.code == 'INVALID_LOGIN_CREDENTIALS') {
           setState(() {
             isProcessing = false;
           });
           MyMessageHandler.showMySnackBar(
-              scaffoldkey: scaffoldKey, customMessage: 'user not found');
-          print('User not found');
-        } else if (e.code == 'wrong-password') {
+              scaffoldkey: scaffoldKey,
+              customMessage: 'Not valid credentials.');
+
+          print('invalid');
+        } else if (e.code == 'wrong_password') {
           setState(() {
             isProcessing = false;
           });
+
+          /// would it work?
           MyMessageHandler.showMySnackBar(
               scaffoldkey: scaffoldKey, customMessage: 'wrong-password');
 

@@ -4,6 +4,7 @@ class MyMessageHandler {
   ///===for showing customScaffoldMessenger everywhere===///
   static void showMySnackBar(
       {required var scaffoldkey, required String customMessage}) {
+    //scaffoldkey.currentState!.hideSnackBar();
     scaffoldkey.currentState!.showSnackBar(SnackBar(
             backgroundColor: Colors.transparent,
             //  width: double.infinity,
