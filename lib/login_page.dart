@@ -76,6 +76,7 @@ class _LoginPageState extends State<LoginPage> {
               customMessage: 'Not valid credentials.');
 
           print('invalid');
+          print(e.code.toString());
         } else if (e.code == 'wrong_password') {
           setState(() {
             isProcessing = false;
@@ -86,6 +87,7 @@ class _LoginPageState extends State<LoginPage> {
               scaffoldkey: scaffoldKey, customMessage: 'wrong-password');
 
           print('Wrong Password');
+          print(e.code.toString());
         }
       }
     }
